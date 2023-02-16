@@ -207,9 +207,8 @@ public class WxpayChannelRefundNoticeService extends AbstractChannelRefundNotice
 
         try {
             // 核对金额
-            Integer total_fee = result.getAmount().getTotal();  // 退款金额
-            long wxPayAmt = new BigDecimal(total_fee).longValue();
-            long dbPayAmt = refundOrder.getRefundAmount().longValue();
+            long wxPayAmt = result.getAmount().getRefund();
+            long dbPayAmt = refundOrder.getRefundAmount();
             if (dbPayAmt != wxPayAmt) {
                 throw ResponseException.buildText("AMOUNT ERROR");
             }

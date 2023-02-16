@@ -16,13 +16,12 @@
 package com.jeequan.jeepay.pay.channel;
 
 
+import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.PayOrder;
 import com.jeequan.jeepay.pay.service.ConfigContextQueryService;
 import com.jeequan.jeepay.pay.util.ChannelCertConfigKitBean;
 import com.jeequan.jeepay.service.impl.SysConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.jws.Oneway;
 
 /*
 * 支付接口抽象类
@@ -60,6 +59,10 @@ public abstract class AbstractPaymentService implements IPaymentService{
 
     protected String getReturnUrl(String payOrderId){
         return sysConfigService.getDBApplicationConfig().getPaySiteUrl() + "/api/pay/return/" + getIfCode() + "/" + payOrderId;
+    }
+
+    protected String getReturnUrlOnlyJump(String payOrderId){
+        return sysConfigService.getDBApplicationConfig().getPaySiteUrl() + "/api/pay/return/" + getIfCode() + "/" + CS.PAY_RETURNURL_FIX_ONLY_JUMP_PREFIX + payOrderId;
     }
 
 }

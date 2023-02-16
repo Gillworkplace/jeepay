@@ -16,6 +16,7 @@
 package com.jeequan.jeepay.pay.channel.wxpay.paywayV3;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.net.URLEncodeUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.github.binarywang.wxpay.constant.WxPayConstants;
 import com.github.binarywang.wxpay.exception.WxPayException;
@@ -86,10 +87,13 @@ public class WxH5 extends WxpayPaymentService {
         // 1. 如果抛异常，则订单状态为： 生成状态，此时没有查单处理操作。 订单将超时关闭
         // 2. 接口调用成功， 后续异常需进行捕捉， 如果 逻辑代码出现异常则需要走完正常流程，此时订单状态为： 支付中， 需要查单处理。
         try {
-            JSONObject resJSON = WxpayV3Util.unifiedOrderV3(reqUrl, reqJSON, wxPayService.getConfig());
+            JSONObject resJSON = WxpayV3Util.unifiedOrderV3(reqUrl, reqJSON, wxPayService);
 
-            String payUrl = resJSON.getString("h5_url");
-            payUrl = sysConfigService.getDBApplicationConfig().getPaySiteUrl() + "/api/common/payUrl/" + Base64.encode(payUrl);
+            // 拼接returnUrl
+            String payUrl = String.format("%s&redirect_url=%s", resJSON.getString("h5_url"), URLEncodeUtil.encode(getReturnUrlOnlyJump(payOrder.getPayOrderId())));
+
+            payUrl = String.format("%s/api/common/payUrl/%s", sysConfigService.getDBApplicationConfig().getPaySiteUrl(), Base64.encode(payUrl));
+
             if (CS.PAY_DATA_TYPE.CODE_IMG_URL.equals(bizRQ.getPayDataType())){ //二维码图片地址
                 res.setCodeImgUrl(sysConfigService.getDBApplicationConfig().genScanImgUrl(payUrl));
             }else{ // 默认都为 payUrl方式

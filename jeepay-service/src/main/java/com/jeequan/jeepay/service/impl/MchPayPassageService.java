@@ -20,8 +20,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.jeequan.jeepay.core.constants.CS;
 import com.jeequan.jeepay.core.entity.MchPayPassage;
+import com.jeequan.jeepay.core.entity.PayInterfaceDefine;
 import com.jeequan.jeepay.core.exception.BizException;
 import com.jeequan.jeepay.service.mapper.MchPayPassageMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -41,6 +43,8 @@ import java.util.Map;
  */
 @Service
 public class MchPayPassageService extends ServiceImpl<MchPayPassageMapper, MchPayPassage> {
+
+    @Autowired private PayInterfaceDefineService payInterfaceDefineService;
 
     /**
      * @Author: ZhuXiao
@@ -108,7 +112,27 @@ public class MchPayPassageService extends ServiceImpl<MchPayPassageMapper, MchPa
                                     .eq(MchPayPassage::getWayCode, wayCode)
         );
 
-        return list.isEmpty() ? null : list.get(0);
+        if (list.isEmpty()) {
+            return null;
+        }else { // 返回一个可用通道
+
+            HashMap<String, MchPayPassage> mchPayPassageMap = new HashMap<>();
+
+            for (MchPayPassage mchPayPassage:list) {
+                mchPayPassageMap.put(mchPayPassage.getIfCode(), mchPayPassage);
+            }
+            // 查询ifCode所有接口
+            PayInterfaceDefine interfaceDefine = payInterfaceDefineService
+                    .getOne(PayInterfaceDefine.gw()
+                            .select(PayInterfaceDefine::getIfCode, PayInterfaceDefine::getState)
+                            .eq(PayInterfaceDefine::getState, CS.YES)
+                            .in(PayInterfaceDefine::getIfCode, mchPayPassageMap.keySet()), false);
+
+            if (interfaceDefine != null) {
+                return mchPayPassageMap.get(interfaceDefine.getIfCode());
+            }
+        }
+        return null;
     }
 
 

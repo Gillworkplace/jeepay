@@ -112,6 +112,8 @@ public class CS {
         return String.format(CACHE_KEY_IMG_CODE, imgToken);
     }
 
+    /** 回调URL的格前缀  */
+    public static final String PAY_RETURNURL_FIX_ONLY_JUMP_PREFIX = "ONLYJUMP_";
 
     /** 登录认证类型 **/
     public interface AUTH_TYPE{
@@ -145,6 +147,7 @@ public class CS {
         String YSFPAY = "ysfpay";   // 云闪付开放平台
         String XXPAY = "xxpay";     // 小新支付
         String PPPAY = "pppay";     // Paypal 支付
+        String PLSPAY = "plspay";     // 计全支付plus
     }
 
 
@@ -157,6 +160,7 @@ public class CS {
 
         String ALI_BAR = "ALI_BAR";  //支付宝条码支付
         String ALI_JSAPI = "ALI_JSAPI";  //支付宝服务窗支付
+        String ALI_LITE = "ALI_LITE";  //支付宝小程序支付
         String ALI_APP = "ALI_APP";  //支付宝 app支付
         String ALI_PC = "ALI_PC";  //支付宝 电脑网站支付
         String ALI_WAP = "ALI_WAP";  //支付宝 wap支付

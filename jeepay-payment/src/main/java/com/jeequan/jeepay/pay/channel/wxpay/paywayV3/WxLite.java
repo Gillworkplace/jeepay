@@ -28,8 +28,8 @@ import com.jeequan.jeepay.pay.model.WxServiceWrapper;
 import com.jeequan.jeepay.pay.rqrs.AbstractRS;
 import com.jeequan.jeepay.pay.rqrs.msg.ChannelRetMsg;
 import com.jeequan.jeepay.pay.rqrs.payorder.UnifiedOrderRQ;
-import com.jeequan.jeepay.pay.rqrs.payorder.payway.WxJsapiOrderRQ;
-import com.jeequan.jeepay.pay.rqrs.payorder.payway.WxJsapiOrderRS;
+import com.jeequan.jeepay.pay.rqrs.payorder.payway.WxLiteOrderRQ;
+import com.jeequan.jeepay.pay.rqrs.payorder.payway.WxLiteOrderRS;
 import com.jeequan.jeepay.pay.util.ApiResBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -53,7 +53,7 @@ public class WxLite extends WxpayPaymentService {
     @Override
     public AbstractRS pay(UnifiedOrderRQ rq, PayOrder payOrder, MchAppConfigContext mchAppConfigContext) throws Exception{
 
-        WxJsapiOrderRQ bizRQ = (WxJsapiOrderRQ) rq;
+        WxLiteOrderRQ bizRQ = (WxLiteOrderRQ) rq;
         WxServiceWrapper wxServiceWrapper = configContextQueryService.getWxServiceWrapper(mchAppConfigContext);
         WxPayService wxPayService = wxServiceWrapper.getWxPayService();
         wxPayService.getConfig().setTradeType(WxPayConstants.TradeType.JSAPI);
@@ -82,7 +82,7 @@ public class WxLite extends WxpayPaymentService {
         }
 
         // 构造函数响应数据
-        WxJsapiOrderRS res = ApiResBuilder.buildSuccess(WxJsapiOrderRS.class);
+        WxLiteOrderRS res = ApiResBuilder.buildSuccess(WxLiteOrderRS.class);
         ChannelRetMsg channelRetMsg = new ChannelRetMsg();
         res.setChannelRetMsg(channelRetMsg);
 
@@ -90,7 +90,7 @@ public class WxLite extends WxpayPaymentService {
         // 1. 如果抛异常，则订单状态为： 生成状态，此时没有查单处理操作。 订单将超时关闭
         // 2. 接口调用成功， 后续异常需进行捕捉， 如果 逻辑代码出现异常则需要走完正常流程，此时订单状态为： 支付中， 需要查单处理。
         try {
-            JSONObject resJSON = WxpayV3Util.unifiedOrderV3(reqUrl, reqJSON, wxPayService.getConfig());
+            JSONObject resJSON = WxpayV3Util.unifiedOrderV3(reqUrl, reqJSON, wxPayService);
 
             res.setPayInfo(resJSON.toJSONString());
 
